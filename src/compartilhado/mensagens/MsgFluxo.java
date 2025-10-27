@@ -1,5 +1,5 @@
 package compartilhado.mensagens;
-//Mensagem de entrada ou saída dos pinguins no servidor
+//Mensagem de entrada ou saída das cobras no servidor
 public class MsgFluxo extends MensagemBase{
 
     private int idRemovido;

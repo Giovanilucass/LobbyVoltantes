@@ -15,14 +15,14 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
     private int idConta;
     private ArrayList<Conta> bancoDeContas; //Referencia para a lista de todos os jogadores
 
-    private Map<Integer, Pinguim> estadosGlobais; //Possui os status dos Pinguins na rede
+    private Map<Integer, Cobra> estadosGlobais; //Possui os status dos Pinguins na rede
     
     private ObjectOutputStream oos; //OOS eh onde iremos enviar nosso Output de Objetos para os clientes
     private ObjectInputStream ois; //OIS eh onde recebemmos o Input de Objetos dos clientes
 
     public static String[] cores = {"VERMELHO", "AZUL", "VERDE", "ROSA", "AMARELO", "ROXO"};
     
-    public ClientHandler(Socket clientSocket, Map<Integer, Pinguim> estadosGlobais, ArrayList<Conta> bancoDeContas){
+    public ClientHandler(Socket clientSocket, Map<Integer, Cobra> estadosGlobais, ArrayList<Conta> bancoDeContas){
         this.ultimaMensagem = System.currentTimeMillis()/1000;
         try {
             this.clientSocket = clientSocket; //Atribui ao ClientHandler o novo socket criado
@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 for (Conta j : bancoDeContas) {
                     if (j.getUsername().equalsIgnoreCase(mensagem.getUsername())) { //Procura um jogador em especifico, se nao acha pede para criar uma conta nova
                         if(j.getOnline()){
-                            oos.writeObject(new MsgRespostaLogin("PINGUIM JA CONECTADO! FECHANDO CONEXAO...", false, 0)); //Senha diferente
+                            oos.writeObject(new MsgRespostaLogin("COBRA JA CONECTADO! FECHANDO CONEXAO...", false, 0)); //Senha diferente
                             oos.flush();
                             return false;
                         }
@@ -52,7 +52,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                             conta = bancoDeContas.get(bancoDeContas.indexOf(j));//Atribui ao Client Handler os valores do jogador
                             this.conta.setOnline(true);
                             this.idConta = bancoDeContas.indexOf(j); //Atribui o seu id ao Index
-                            oos.writeObject(new MsgRespostaLogin("ITS PENGUIN TIME...", true, idConta)); //Senha diferente
+                            oos.writeObject(new MsgRespostaLogin("ITS SNAKE TIME...", true, idConta)); //Senha diferente
                             oos.flush();
                             return true; //Retorna True se encontrou o usuario e sua senha esta correta
                             //BROADCAST DE USUÁRIO LOGOU
@@ -67,7 +67,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 this.idConta = bancoDeContas.size(); //Define o Id do novo jogador com base em quantos jogadores existem
                 bancoDeContas.add(conta);
             }
-            oos.writeObject(new MsgRespostaLogin("CONTA CRIADA! ITS PENGUIN TIME...", true, idConta)); //Senha diferente
+            oos.writeObject(new MsgRespostaLogin("CONTA CRIADA! ITS SNAKE TIME...", true, idConta)); //Senha diferente
             oos.flush();
             return true;
         } catch (Exception e) {
@@ -101,13 +101,13 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
         
         if(this.conta != null && conta.getOnline()){ //Faz Broadcast se o penguin estava online (concluiu o login) e saiu do servidor
             synchronized (estadosGlobais) {
-                Pinguim pinguimParaSalvar = estadosGlobais.get(idConta);
-                if (pinguimParaSalvar != null) {
-                    conta.salvarPosicao(pinguimParaSalvar.getXAlvo(), pinguimParaSalvar.getYAlvo());
+                Cobra cobraParaSalvar = estadosGlobais.get(idConta);
+                if (cobraParaSalvar != null) {
+                    conta.salvarPosicao(cobraParaSalvar.getXAlvo(), cobraParaSalvar.getYAlvo());
                     estadosGlobais.remove(idConta);
                 }
                 else {
-                    System.out.println("Aviso: Pinguim ID " + idConta + " já removido do estado global.");
+                    System.out.println("Aviso: Cobra ID " + idConta + " já removido do estado global.");
                 }
             }
             System.err.println(conta.getUsername() + " saiu do servidor");
@@ -168,25 +168,25 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                         MsgPosicaoAlvo msgAlvo = (MsgPosicaoAlvo) mensagem; //Transforma a mensagem recebida no tipo PosicaoAlvo
                         synchronized (estadosGlobais){
                             Ponto2D posicaoAlvo = msgAlvo.getAlvo(); //Pega as coordenadas do Alvo(clique) do cliente
-                            Pinguim pinguimAlvo = estadosGlobais.get(idConta); //Pega do Map com todos os pinguins, o pinguim que enviou a mensagem
-                            if (pinguimAlvo == null) {
-                                System.err.println("Erro: Pinguim do ID " + idConta + " não encontrado no Map Global.");
+                            Cobra cobraAlvo = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
+                            if (cobraAlvo == null) {
+                                System.err.println("Erro: Cobra do ID " + idConta + " não encontrado no Map Global.");
                             }
-                            pinguimAlvo.setXAlvo(posicaoAlvo.getX());
-                            pinguimAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
-                            estadosGlobais.put(idConta, pinguimAlvo); //Insere o pinguim com as novas coordenadas alvo no Map
-                            System.out.println(pinguimAlvo.getId() + "-" + conta.getUsername() + " andou para: " + pinguimAlvo.getXAlvo() + "x" + pinguimAlvo.getYAlvo());
+                            cobraAlvo.setXAlvo(posicaoAlvo.getX());
+                            cobraAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
+                            estadosGlobais.put(idConta, cobraAlvo); //Insere a cobra com as novas coordenadas alvo no Map
+                            System.out.println(cobraAlvo.getId() + "-" + conta.getUsername() + " andou para: " + cobraAlvo.getXAlvo() + "x" + cobraAlvo.getYAlvo());
                             broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia o novo Map com as coordenadas alvo alteradas para que os Clientes movimentem os pinguins ate essas coordenadas
                         }
                         break;
                     case "DANCA":
                         MsgDanca msgDanca = (MsgDanca) mensagem; //Transforma a mensagem recebida no tipo Danca
                         synchronized(estadosGlobais) {
-                            Pinguim pinguimDanca = estadosGlobais.get(idConta); //Pega do Map com todos os pinguins, o pinguim que enviou a mensagem
-                            pinguimDanca.dancar(); //Atualiza o estado de Danca do pinguim
-                            estadosGlobais.put(idConta, pinguimDanca); //Atualiza no Map o pinguim com o estado alterado
-                            if(pinguimDanca.getDancando()) System.out.println(pinguimDanca.getId() + "-" + conta.getUsername() + " dançou.");
-                            else System.out.println(pinguimDanca.getId() + "-" + conta.getUsername() + " parou de dançar.");
+                            Cobra cobraDanca = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
+                            cobraDanca.dancar(); //Atualiza o estado de Danca da cobra
+                            estadosGlobais.put(idConta, cobraDanca); //Atualiza no Map a cobra com o estado alterado
+                            if(cobraDanca.getDancando()) System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " dançou.");
+                            else System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " parou de dançar.");
                             broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia para todos os outros Clientes o Map com os estados de Danca atualizados 
                         }
                         break;
@@ -243,8 +243,8 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
 
             
             synchronized (estadosGlobais) {
-                Pinguim pinguim = new Pinguim(idConta, conta.getUsername(), conta.getXSalvo(), conta.getYSalvo(), false, cores[idConta%6]); //Cria novo pinguim com o id gerado
-                estadosGlobais.put(idConta, pinguim); //Adiciona no Map o pinguim criado
+                Cobra cobra = new Cobra(idConta, conta.getUsername(), conta.getXSalvo(), conta.getYSalvo(), false, cores[idConta%6]); //Cria nova cobra com o id gerado
+                estadosGlobais.put(idConta, cobra); //Adiciona no Map a cobra criada
             }
 
             try{
@@ -256,7 +256,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 closeGeral(clientSocket, oos, ois);
             }
             
-            broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia para todos os jogadores o Map atual com o novo pinguim adicionado
+            broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia para todos os jogadores o Map atual com a nova cobra adicionada
             broadcast(new MsgFluxo(idConta, conta.getUsername(), "ENTRADA"));
 
             keepAlive();

@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 public class Servidor{
 
     private ServerSocket serverSocket; 
-    private Map<Integer, Pinguim> estadosGlobais; // Associa o ID com penguim
+    private Map<Integer, Cobra> estadosGlobais; // Associa o ID com penguim
 
     private ArrayList<Conta> bancoDeContas; //Possui informacoes does players
 
@@ -42,7 +42,7 @@ public class Servidor{
         }
     }
     
-    public static void main(String args[]) throws IOException{ //Duvida: Pq a main tem thorws exception? em teoria n era pra ela lidar com o erro do abre servidor?
+    public static void main(String args[]) throws IOException{
         Scanner sc = new Scanner(System.in);
         System.out.print("Informe a porta: ");
         int port = sc.nextInt();

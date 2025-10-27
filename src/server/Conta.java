@@ -1,5 +1,5 @@
 package server;
-//SERÁ QUE JOGADOR PODE TER ATRIBUTO DE ONLINE?
+
 public class Conta{
     private String username;
     private String senha;

@@ -1,7 +1,7 @@
 package compartilhado;
 import java.io.*;
 
-public class Pinguim implements Serializable{
+public class Cobra implements Serializable{
 	private int id;
 	// private Ponto2D posicaoAtual
 	private String username;
@@ -9,7 +9,7 @@ public class Pinguim implements Serializable{
 	private boolean estaDancando;
 	private String cor;
 	
-	public Pinguim(int id, String username, int x_Alvo, int y_Alvo, boolean estaDancando, String cor){
+	public Cobra(int id, String username, int x_Alvo, int y_Alvo, boolean estaDancando, String cor){
 		this.id = id;
 		this.username = username;
 		// this.posicaoAtual = new Ponto2D(x_Atual, y_Atual);
