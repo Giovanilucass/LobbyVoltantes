@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import compartilhado.mensagens.*;
-import compartilhado.*;
 
 
 //Primeiramente 
@@ -26,7 +25,7 @@ public class Cliente{
 
     private MensageiroCliente chatCliente; //Responsável por fazer a comunicação do chat
 
-    private Map<Integer, PinguimRender> estadosGlobaisCliente; //Pega os estados do penguins online
+    private Map<Integer, CobraRender> estadosGlobaisCliente; //Pega os estados das cobras online
 
     private long ultimaMensagem; //tempo em segundos da ultima mensagem enviada ao Servidor
 
@@ -131,7 +130,7 @@ public class Cliente{
             Cliente cliente = new Cliente(socket);
             if(cliente.login()){
                 cliente.chatCliente = new MensageiroCliente(cliente.oos, cliente.username); //Responsável pelo gerenciamento do chat via terminal
-                cliente.estadosGlobaisCliente = new ConcurrentHashMap<Integer, PinguimRender>(); //Responsável pela renderização dos penguins
+                cliente.estadosGlobaisCliente = new ConcurrentHashMap<Integer, CobraRender>(); //Responsável pela renderização das cobras
                 cliente.gerenciadorDeEstados = new GerenciadorDeEstados(cliente.estadosGlobaisCliente);
 
                 

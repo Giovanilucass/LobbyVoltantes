@@ -5,10 +5,10 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class GerenciadorDeEstados{
-	private Map<Integer, PinguimRender> estadosLocal;
+	private Map<Integer, CobraRender> estadosLocal;
     private BlockingQueue<MsgAtualizacaoEstado> filaDeEventos; //FILA CRAZY CRAZY FILA 
     
-    public GerenciadorDeEstados(Map<Integer, PinguimRender>estadosLocal) {
+    public GerenciadorDeEstados(Map<Integer, CobraRender>estadosLocal) {
         this.estadosLocal = estadosLocal;
         this.filaDeEventos = new LinkedBlockingQueue<MsgAtualizacaoEstado>();
         Thread processador = new Thread(this::processarEventos);
@@ -17,7 +17,7 @@ public class GerenciadorDeEstados{
     }
 
     public void debugMap() {
-        for (Map.Entry<Integer, PinguimRender> entry : estadosLocal.entrySet()) {
+        for (Map.Entry<Integer, CobraRender> entry : estadosLocal.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue().getXAlvo() + " ; " + entry.getValue().getYAlvo());
         }
     }
@@ -40,22 +40,22 @@ public class GerenciadorDeEstados{
     }
 
 
-    public void sincronizarEstado(Map<Integer, Pinguim> estadosAutorizado) {
+    public void sincronizarEstado(Map<Integer, Cobra> estadosAutorizado) {
         Set<Integer> IDsServidor = new HashSet<Integer>(estadosAutorizado.keySet());
         
-        for (Pinguim pinguim : estadosAutorizado.values()) { //Para cada pinguim na lista REAL de pinguins
-            int id = pinguim.getId(); //Pega o ID do pinguim real
-            PinguimRender pinguimLocal = estadosLocal.get(id); // Para cada pinguim real, pega a sua render local
+        for (Cobra cobra : estadosAutorizado.values()) { //Para cada cobra na lista REAL de cobras
+            int id = cobra.getId(); //Pega o ID da cobra real
+            CobraRender cobraLocal = estadosLocal.get(id); // Para cada cobra real, pega a sua render local
 
-            if (pinguimLocal == null) { //Se não for capaz de achar localmente, cria uma nova renderização de pinguim
-                PinguimRender novoPinguimLocal = new PinguimRender(pinguim); //Cria um render de Pinguim baseado no pinguim real
-                estadosLocal.put(id, novoPinguimLocal); 
+            if (cobraLocal == null) { //Se não for capaz de achar localmente, cria uma nova renderização de cobra
+                CobraRender novoCobraLocal = new CobraRender(cobra); //Cria um render de Cobra baseado na cobra real
+                estadosLocal.put(id, novoCobraLocal); 
             }
 
             else {//Atualiza posições da render
-                pinguimLocal.setDancando(pinguim.getDancando());
-                pinguimLocal.setXAlvo(pinguim.getXAlvo());
-                pinguimLocal.setYAlvo(pinguim.getYAlvo());
+                cobraLocal.setDancando(cobra.getDancando());
+                cobraLocal.setXAlvo(cobra.getXAlvo());
+                cobraLocal.setYAlvo(cobra.getYAlvo());
             }
         }
 

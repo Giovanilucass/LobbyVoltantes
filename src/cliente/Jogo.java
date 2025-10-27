@@ -1,13 +1,10 @@
 package cliente;
 
-import compartilhado.Pinguim;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
 import java.util.Map;
-import java.util.HashMap;
 
 public class Jogo {
 
@@ -16,7 +13,7 @@ public class Jogo {
     // JTextArea e JScrollPane serão acessíveis por meio de uma referência final
     private static JTextArea logChat;
 
-    public static void iniciaJogo(int MEU_PINGUIM_ID, Map<Integer, PinguimRender> pinguinsRenderMap, MensageiroCliente mensageiroCliente) {
+    public static void iniciaJogo(int MINHA_COBRA_ID, Map<Integer, CobraRender> pinguinsRenderMap, MensageiroCliente mensageiroCliente) {
         SwingUtilities.invokeLater(() -> {
 
             // --- 2. CONFIGURAÇÃO DA JANELA E PAINEL ---
@@ -26,7 +23,7 @@ public class Jogo {
             frame.setLocationRelativeTo(null); 
             frame.setLayout(new BorderLayout());
 
-            PainelJogo painelJogo = new PainelJogo(pinguinsRenderMap, MEU_PINGUIM_ID, mensageiroCliente);
+            PainelJogo painelJogo = new PainelJogo(pinguinsRenderMap, MINHA_COBRA_ID, mensageiroCliente);
             frame.add(painelJogo, BorderLayout.CENTER); 
             
             
@@ -45,7 +42,7 @@ public class Jogo {
             JTextField campoChat = new JTextField(40); 
             campoChat.setToolTipText("Digite sua mensagem e pressione Enter");
 
-            // **MODIFICADO**: Botão de Saída usando botaoSaida.png
+            // Botão de Saída
             ImageIcon iconSair = null;
             try {
                 // Carrega o sprite do botão Sair
@@ -103,7 +100,7 @@ public class Jogo {
             uiPanel.setLayout(new BoxLayout(uiPanel, BoxLayout.Y_AXIS));
             uiPanel.setOpaque(false);
             
-            // NOVO: Adiciona o scroll (log)
+            // Adiciona o scroll (log)
             scrollChat.setAlignmentX(Component.RIGHT_ALIGNMENT); // Alinha o scroll à direita
             uiPanel.add(scrollChat);
             
@@ -121,20 +118,20 @@ public class Jogo {
             btnDanca.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    PinguimRender pinguimLocal = pinguinsRenderMap.get(MEU_PINGUIM_ID);
-                    if (pinguimLocal != null) {
-                        pinguimLocal.setDancando(!pinguimLocal.getDancando());
+                    CobraRender cobraLocal = pinguinsRenderMap.get(MINHA_COBRA_ID);
+                    if (cobraLocal != null) {
+                        cobraLocal.setDancando(!cobraLocal.getDancando());
                         try{
                             mensageiroCliente.enviaDanca();
                         }catch(Exception excecao){
                             excecao.printStackTrace();
                         }
-                        System.out.println("Estado de dança do pinguim " + MEU_PINGUIM_ID + " alterado para: " + pinguimLocal.getDancando());
+                        System.out.println("Estado de dança da cobra " + MINHA_COBRA_ID + " alterado para: " + cobraLocal.getDancando());
                     }
                 }
             });
 
-            // Ação do Botão SAIR (MANTIDA)
+            // Ação do Botão SAIR
             btnSair.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -159,7 +156,7 @@ public class Jogo {
                         excecao.printStackTrace();
                     }
                     if (!mensagem.trim().isEmpty()) {
-                        String username = pinguinsRenderMap.get(MEU_PINGUIM_ID).getUsername();
+                        String username = pinguinsRenderMap.get(MINHA_COBRA_ID).getUsername();
                         
                         // Envia a mensagem para o log na tela
                         adicionarMensagemChatCliente(username, mensagem);
@@ -181,9 +178,8 @@ public class Jogo {
         });
     }
     
-    /**
-     * **NOVO MÉTODO**: Adiciona uma nova mensagem ao log de chat e força a rolagem.
-     */
+    //Adiciona uma nova mensagem ao log de chat e força a rolagem.
+    
     public static void adicionarMensagemChatCliente(String username, String mensagem) {
         String linha = String.format("[%s]: %s\n", username, mensagem);
         // Adiciona a nova linha ao final do JTextArea
@@ -198,9 +194,7 @@ public class Jogo {
         logChat.setCaretPosition(logChat.getDocument().getLength());
     }
 
-    // (Método getSpritePath mantido inalterado)
     public static String getSpritePath(String cor) {
-        // ... (lógica de switch case) ...
         switch(cor.toUpperCase()){
             case "VERDE": return "sprites/voltante.png";
             case "AMARELO": return "sprites/voltanteAmarelo.png";

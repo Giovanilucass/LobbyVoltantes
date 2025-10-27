@@ -1,6 +1,5 @@
 package cliente;
 
-import compartilhado.Ponto2D; 
 import java.awt.*;
 import java.awt.event.*; 
 import javax.swing.*;
@@ -16,9 +15,9 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
 
     private MensageiroCliente mensageiroCliente;
     
-    private Map<Integer, PinguimRender> pinguinsMap; // NOVO: Mapa de todos os pinguins
-    private final int meuPinguimId; // NOVO: ID do pinguim controlado pelo usuário
-    private PinguimRender meuPinguimLocal; // Referência direta para o pinguim local
+    private Map<Integer, CobraRender> pinguinsMap; // Mapa de todos os pinguins
+    private final int meuCobraId; // ID da cobra controlado pelo usuário
+    private CobraRender meuCobraLocal; // Referência direta para o cobra local
 
     // Mapa para gerenciar sprites dinamicamente (Cor -> Imagem)
     private Map<String, Image> sprites = new HashMap<>(); 
@@ -45,14 +44,14 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
     }
 
     // Construtor atualizado: recebe o mapa e o ID local
-    public PainelJogo(Map<Integer, PinguimRender> pinguinsMap, int meuPinguimId, MensageiroCliente mensageiroCliente) {
+    public PainelJogo(Map<Integer, CobraRender> pinguinsMap, int meuCobraId, MensageiroCliente mensageiroCliente) {
         this.pinguinsMap = pinguinsMap;
-        this.meuPinguimId = meuPinguimId;
+        this.meuCobraId = meuCobraId;
 
         this.mensageiroCliente = mensageiroCliente;
         
-        // Obtém a referência local para o pinguim do jogador
-        this.meuPinguimLocal = pinguinsMap.get(meuPinguimId);
+        // Obtém a referência local para a cobra do jogador
+        this.meuCobraLocal = pinguinsMap.get(meuCobraId);
         
         carregarSprites(); // Carrega todos os sprites
 
@@ -64,7 +63,7 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
     }
     
     private void carregarSprites(){
-        // Itera sobre todas as cores e carrega os sprites (CÓDIGO MANTIDO)
+        // Itera sobre todas as cores e carrega os sprites
         for (String cor : cores) {
             String caminhoSprite = getSpritePath(cor);
             
@@ -93,19 +92,19 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
         Graphics2D g2d = (Graphics2D) g;
         
         // Itera sobre TODOS os pinguins no mapa para desenhar
-        for (PinguimRender pinguim : pinguinsMap.values()) {
-            desenharPinguim(g2d, pinguim);
+        for (CobraRender cobra : pinguinsMap.values()) {
+            desenharCobra(g2d, cobra);
         }
     }
     
-    private void desenharPinguim(Graphics2D g2d, PinguimRender pinguim) {
+    private void desenharCobra(Graphics2D g2d, CobraRender cobra) {
         
-        Image spritePinguim = sprites.getOrDefault(pinguim.getCor(), sprites.get("DEFAULT"));
+        Image spriteCobra = sprites.getOrDefault(cobra.getCor(), sprites.get("DEFAULT"));
         // Se a cor for nula ou não estiver carregada, use o default
-        if (spritePinguim == null) return; 
+        if (spriteCobra == null) return; 
 
-        int x_atual = pinguim.getXAtual(); 
-        int y_atual = pinguim.getYAtual();
+        int x_atual = cobra.getXAtual(); 
+        int y_atual = cobra.getYAtual();
         
         int x_sprite = x_atual - (LARGURA_SPRITE / 2);
         int y_sprite = y_atual - (ALTURA_SPRITE / 2);
@@ -116,7 +115,7 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
         
         AffineTransform originalTransform = g2d.getTransform();
 
-        // A. DESENHO DA SOMBRA (MANTIDO)
+        // A. DESENHO DA SOMBRA
         Composite originalComposite = g2d.getComposite();
         AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, SHADOW_OPACITY);
         g2d.setComposite(alpha);
@@ -124,21 +123,21 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
         g2d.fillOval(x_sombra, y_sombra, SHADOW_WIDTH, SHADOW_HEIGHT);
         g2d.setComposite(originalComposite);
         
-        // B. ROTAÇÃO E DESENHO DO SPRITE DO PINGUIM (MANTIDO)
-        if (pinguim.getDancando()) {
+        // B. ROTAÇÃO E DESENHO DO SPRITE DO COBRA
+        if (cobra.getDancando()) {
             g2d.translate(x_atual, y_atual);
-            double radianos = Math.toRadians(pinguim.getAnguloRotacao());
+            double radianos = Math.toRadians(cobra.getAnguloRotacao());
             g2d.rotate(radianos);
             
-            g2d.drawImage(spritePinguim, -LARGURA_SPRITE / 2, -ALTURA_SPRITE / 2, LARGURA_SPRITE, ALTURA_SPRITE, this);
+            g2d.drawImage(spriteCobra, -LARGURA_SPRITE / 2, -ALTURA_SPRITE / 2, LARGURA_SPRITE, ALTURA_SPRITE, this);
             
             g2d.setTransform(originalTransform); 
         } else {
-            g2d.drawImage(spritePinguim, x_sprite, y_sprite, LARGURA_SPRITE, ALTURA_SPRITE, this);
+            g2d.drawImage(spriteCobra, x_sprite, y_sprite, LARGURA_SPRITE, ALTURA_SPRITE, this);
         }
         
-        // C. DESENHO DO USERNAME (MANTIDO)
-        String username = pinguim.getUsername();
+        // C. DESENHO DO USERNAME
+        String username = cobra.getUsername();
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.BOLD, 12));
         
@@ -153,21 +152,21 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // Evento de mouse afeta APENAS o pinguim local
-        if (meuPinguimLocal != null) {
-            if (!meuPinguimLocal.getDancando()) {
+        // Evento de mouse afeta APENAS o cobra local
+        if (meuCobraLocal != null) {
+            if (!meuCobraLocal.getDancando()) {
                 int novoX = e.getX();
                 int novoY = e.getY();
-                meuPinguimLocal.setXAlvo(novoX);
-                meuPinguimLocal.setYAlvo(novoY);
+                meuCobraLocal.setXAlvo(novoX);
+                meuCobraLocal.setYAlvo(novoY);
                 try{
                     mensageiroCliente.enviaPosicao(novoX, novoY);
                 }catch(Exception excecao){
                     excecao.printStackTrace();
                 }
-                //System.out.println("Alvo do pinguim local (" + meuPinguimLocal.getId() + ") definido para: (" + novoX + ", " + novoY + ")");
+                //System.out.println("Alvo da cobra local (" + meuCobraLocal.getId() + ") definido para: (" + novoX + ", " + novoY + ")");
             } else {
-                //System.out.println("Pinguim local está dançando e não pode se mover!");
+                //System.out.println("Cobra local está dançando e não pode se mover!");
             }
         }
     }
@@ -175,8 +174,8 @@ class PainelJogo extends JPanel implements MouseListener, ActionListener {
     @Override
     public void actionPerformed(java.awt.event.ActionEvent e) {
         // Atualiza a posição de TODOS os pinguins no mapa
-        for (PinguimRender pinguim : pinguinsMap.values()) {
-             pinguim.atualizarPosicao();
+        for (CobraRender cobra : pinguinsMap.values()) {
+             cobra.atualizarPosicao();
         }
         repaint();
     }

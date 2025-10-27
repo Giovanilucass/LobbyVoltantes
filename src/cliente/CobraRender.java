@@ -1,9 +1,8 @@
 package cliente;
 
-import compartilhado.Pinguim;
-import compartilhado.Ponto2D;
+import compartilhado.*;
 
-public class PinguimRender extends Pinguim { 
+public class CobraRender extends Cobra { 
     
     private transient Ponto2D posicaoAtual;
     private final double VELOCIDADE_DE_MOVIMENTO = 0.1; 
@@ -12,7 +11,7 @@ public class PinguimRender extends Pinguim {
     
     private final double VELOCIDADE_ROTACAO = 10.0; 
 
-    public PinguimRender(compartilhado.Pinguim pinguim) {
+    public CobraRender(Cobra pinguim) {
         super(pinguim.getId(),
         pinguim.getUsername(),
         pinguim.getXAlvo(),
