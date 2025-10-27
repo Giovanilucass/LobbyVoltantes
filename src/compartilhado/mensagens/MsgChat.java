@@ -6,7 +6,7 @@ public class MsgChat extends MensagemBase{
 	private String texto;
 	
 	public MsgChat(String texto, String username){
-		super("CHAT");
+
 		this.texto = texto;
 		this.username = username;
 	}

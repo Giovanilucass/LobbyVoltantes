@@ -5,7 +5,6 @@ public class MsgPosicaoAlvo extends MensagemBase{
 	private Ponto2D alvo;
 
 	public MsgPosicaoAlvo(Ponto2D alvo){
-		super("ALVO");
 		this.alvo = alvo;
 	}
 

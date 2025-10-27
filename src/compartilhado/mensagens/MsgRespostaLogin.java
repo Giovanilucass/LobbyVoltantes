@@ -6,7 +6,6 @@ public class MsgRespostaLogin extends MensagemBase{
     private boolean login;
 
     public MsgRespostaLogin(String mensagem, boolean login, int id){
-        super("RESPOSTA_LOGIN");
         this.mensagem = mensagem;
         this.login = login;
         this.id = id;

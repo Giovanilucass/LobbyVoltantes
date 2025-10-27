@@ -102,10 +102,10 @@ public class Cliente{
                     // Tempo atual - Tempo da última mensagem > 15: (Manda Keep Alive caso tenha passado 15 segundos sem mensagem)
                     try {
                         if(((System.currentTimeMillis()/1000) - ultimaMensagem)>15.00){
-                            oos.writeObject(new MensagemBase("KEEP_ALIVE"));
+                            oos.writeObject(new MensagemBase());
                             oos.flush();
                             setUltimaMensagem(System.currentTimeMillis()/1000);
-                            }
+                        }
                         Thread.sleep(1000); 
                     } catch (Exception e) {
                         break;

@@ -4,11 +4,12 @@ public class MsgFluxo extends MensagemBase{
 
     private int idRemovido;
     private String username;
+    private String tipo;
 
     public MsgFluxo(int idRemovido, String username, String tipo){
-        super(tipo);
         this.idRemovido = idRemovido;
         this.username = username;
+        this.tipo = tipo;
     }
 
     public int getIdRemovido(){
@@ -17,6 +18,10 @@ public class MsgFluxo extends MensagemBase{
 
     public String getUsername(){
         return this.username;
+    }
+
+    public String getTipo(){
+        return this.tipo;
     }
     
 }

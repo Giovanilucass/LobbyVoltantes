@@ -160,50 +160,54 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
         while (!clientSocket.isClosed())
         {
             try{
+                
                 MensagemBase mensagem = (MensagemBase) ois.readObject(); // Recebe mensagem generica 
                 this.ultimaMensagem = System.currentTimeMillis()/1000;
 
-                switch(mensagem.getTipo()){
-                    case "ALVO":
-                        MsgPosicaoAlvo msgAlvo = (MsgPosicaoAlvo) mensagem; //Transforma a mensagem recebida no tipo PosicaoAlvo
-                        synchronized (estadosGlobais){
-                            Ponto2D posicaoAlvo = msgAlvo.getAlvo(); //Pega as coordenadas do Alvo(clique) do cliente
-                            Cobra cobraAlvo = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
-                            if (cobraAlvo == null) {
-                                System.err.println("Erro: Cobra do ID " + idConta + " não encontrado no Map Global.");
-                            }
-                            cobraAlvo.setXAlvo(posicaoAlvo.getX());
-                            cobraAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
-                            estadosGlobais.put(idConta, cobraAlvo); //Insere a cobra com as novas coordenadas alvo no Map
-                            System.out.println(cobraAlvo.getId() + "-" + conta.getUsername() + " andou para: " + cobraAlvo.getXAlvo() + "x" + cobraAlvo.getYAlvo());
-                            broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia o novo Map com as coordenadas alvo alteradas para que os Clientes movimentem os pinguins ate essas coordenadas
+                if(mensagem instanceof MsgPosicaoAlvo){
+                    MsgPosicaoAlvo msgAlvo = (MsgPosicaoAlvo) mensagem; //Transforma a mensagem recebida no tipo PosicaoAlvo
+                    synchronized (estadosGlobais){
+                        Ponto2D posicaoAlvo = msgAlvo.getAlvo(); //Pega as coordenadas do Alvo(clique) do cliente
+                        Cobra cobraAlvo = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
+                        if (cobraAlvo == null) {
+                            System.err.println("Erro: Cobra do ID " + idConta + " não encontrado no Map Global.");
                         }
-                        break;
-                    case "DANCA":
-                        MsgDanca msgDanca = (MsgDanca) mensagem; //Transforma a mensagem recebida no tipo Danca
-                        synchronized(estadosGlobais) {
-                            Cobra cobraDanca = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
-                            cobraDanca.dancar(); //Atualiza o estado de Danca da cobra
-                            estadosGlobais.put(idConta, cobraDanca); //Atualiza no Map a cobra com o estado alterado
-                            if(cobraDanca.getDancando()) System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " dançou.");
-                            else System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " parou de dançar.");
-                            broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia para todos os outros Clientes o Map com os estados de Danca atualizados 
-                        }
-                        break;
-                    case "CHAT":
-                        System.out.println("Recebi mensagem de chat!");
-                        MsgChat chat = (MsgChat) mensagem; //Recebe Mensagem de texto do cliente
-                        String texto = chat.getTexto();
-                        System.out.println(texto);
-                        broadcast(new MsgChat(texto, conta.getUsername()));
-                        break;
-                    case "SAIDA":
+                        cobraAlvo.setXAlvo(posicaoAlvo.getX());
+                        cobraAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
+                        estadosGlobais.put(idConta, cobraAlvo); //Insere a cobra com as novas coordenadas alvo no Map
+                        System.out.println(cobraAlvo.getId() + "-" + conta.getUsername() + " andou para: " + cobraAlvo.getXAlvo() + "x" + cobraAlvo.getYAlvo());
+                        broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia o novo Map com as coordenadas alvo alteradas para que os Clientes movimentem os pinguins ate essas coordenadas
+                    }
+                }
+
+                else if (mensagem instanceof MsgDanca) {
+                    MsgDanca msgDanca = (MsgDanca) mensagem; //Transforma a mensagem recebida no tipo Danca
+                    synchronized(estadosGlobais) {
+                        Cobra cobraDanca = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
+                        cobraDanca.dancar(); //Atualiza o estado de Danca da cobra
+                        estadosGlobais.put(idConta, cobraDanca); //Atualiza no Map a cobra com o estado alterado
+                        if(cobraDanca.getDancando()) System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " dançou.");
+                        else System.out.println(cobraDanca.getId() + "-" + conta.getUsername() + " parou de dançar.");
+                        broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia para todos os outros Clientes o Map com os estados de Danca atualizados 
+                    }
+                }
+                
+                else if (mensagem instanceof MsgChat) {
+                    System.out.println("Recebi mensagem de chat!");
+                    MsgChat chat = (MsgChat) mensagem; //Recebe Mensagem de texto do cliente
+                    String texto = chat.getTexto();
+                    System.out.println(texto);
+                    broadcast(new MsgChat(texto, conta.getUsername()));
+                }
+
+                else if(mensagem instanceof MsgFluxo) {
+                    MsgFluxo msgFluxo = (MsgFluxo) mensagem;
+                    if(msgFluxo.getTipo().equals("SAIDA")) {
                         System.out.println("msg saida");        
                         closeGeral(clientSocket, oos, ois);
-                        break;
-                    default:
-                        break;
+                    }
                 }
+            
             }catch (Exception e) {
                 System.out.println("Problema no recebe");
                 closeGeral(clientSocket, oos, ois);
