@@ -1,19 +1,13 @@
 package cliente;
-import java.net.*;
-import java.io.*;
-import java.util.*;
-
-import javax.swing.SwingUtilities;
-
-import compartilhado.*;
 import compartilhado.mensagens.*;
+import java.io.*;
 
 public class LeitorDoCliente implements Runnable{
     private ObjectInputStream ois; //Recebe a atualização do servidor (estados autorizados)
     private final GerenciadorDeEstados pipeGerenciadorEstados; //Comunicação entre leitor e interface
-    private final ChatCliente pipeChat; //Comunicação entre leitor de cliente e chat
+    private final MensageiroCliente pipeChat; //Comunicação entre leitor de cliente e chat
 
-    public LeitorDoCliente(ObjectInputStream ois, GerenciadorDeEstados Interface, ChatCliente chat) {
+    public LeitorDoCliente(ObjectInputStream ois, GerenciadorDeEstados Interface, MensageiroCliente chat) {
         this.ois = ois;
         this.pipeGerenciadorEstados = Interface;
         this.pipeChat = chat;
@@ -29,25 +23,23 @@ public class LeitorDoCliente implements Runnable{
                 
                 if (mensagem instanceof MsgAtualizacaoEstado) {
                     final MsgAtualizacaoEstado mensagemAttEstado = (MsgAtualizacaoEstado) mensagem;
-                    pipeGerenciadorEstados.sincronizarEstado(mensagemAttEstado.getEstadoGlobal());
-                    pipeGerenciadorEstados.debugMap();
-                    // SwingUtilities.invokeLater(() -> { //No caso da interface só joga na fila
-                        // pipeInterface.sincronizarEstado(mensagemAttEstado.getEstadoGlobal());
-                        // pipeInterface.repaint();
-                    // });
+                    pipeGerenciadorEstados.addEvento(mensagemAttEstado);
+                    // System.out.println("Atualização chegou.");
+                    
+                  
                 }
                 else if (mensagem instanceof MsgChat) {
                     final MsgChat mensagemChat = (MsgChat) mensagem; //Final: transforma variavel em constante (não correr risco do objeto ser alterado)
-                    pipeChat.chatClientes(mensagemChat); //Pede para o chat tratar a mensagem (mas será que tem que esperar o chat terminar para continuar rodando o leitor?)
-    
+                    Jogo.adicionarMensagemChatCliente(mensagemChat.getUsername(), mensagemChat.getTexto());
                 }
+
                 else if (mensagem instanceof MsgFluxo) {
                     final MsgFluxo msgFluxo = (MsgFluxo) mensagem;
                     if(msgFluxo.getTipo().equals("SAIDA")){
-                        pipeGerenciadorEstados.remover(msgFluxo.getIdRemovido());
-                        pipeChat.chatServer(msgFluxo.getUsername() + " SAIU DO SERVIDOR");
+                        
+                        Jogo.adicionarMensagemChatServidor(msgFluxo.getUsername() + " SAIU DO SERVIDOR");
                     }else if(msgFluxo.getTipo().equals("ENTRADA")){
-                        pipeChat.chatServer(msgFluxo.getUsername() + " ENTROU NO SERVIDOR");
+                        Jogo.adicionarMensagemChatServidor(msgFluxo.getUsername() + " ENTROU NO SERVIDOR");
                     }
                 }
                 else {

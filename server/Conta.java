@@ -3,10 +3,11 @@ package server;
 public class Conta{
     private String username;
     private String senha;
-    private boolean online;
+    private boolean online=true;
+    private int xSalvo=400;
+    private int ySalvo=300;
 
     public Conta(String username, String senha){
-        this.online = true;
         this.username = username;
         this.senha = senha;
     }
@@ -27,4 +28,18 @@ public class Conta{
     public boolean getOnline(){
         return this.online;
     }
+
+    public int getXSalvo() {
+        return xSalvo;
+    }
+
+    public int getYSalvo() {
+        return ySalvo;
+    }
+
+    public void salvarPosicao(int X, int Y) {
+        this.xSalvo = X;
+        this.ySalvo = Y;
+    }
+
 }

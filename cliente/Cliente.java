@@ -2,8 +2,11 @@ package cliente;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
+
 import compartilhado.mensagens.*;
 import compartilhado.*;
+
 
 //Primeiramente 
 //Assim que o Cliente conectar havera a requisicao de Login
@@ -21,19 +24,22 @@ public class Cliente{
 
     private String username;
 
-    private ChatCliente chatCliente; //Responsável por fazer a comunicação do chat
+    private MensageiroCliente chatCliente; //Responsável por fazer a comunicação do chat
 
     private Map<Integer, PinguimRender> estadosGlobaisCliente; //Pega os estados do penguins online
 
     private long ultimaMensagem; //tempo em segundos da ultima mensagem enviada ao Servidor
+
+    private int idCliente;
     
     public Cliente(Socket socket) {
         this.socket = socket;
         this.ultimaMensagem = System.currentTimeMillis()/1000;
         try{
-            this.ois = new ObjectInputStream(socket.getInputStream());
             this.oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
+            this.ois = new ObjectInputStream(socket.getInputStream());
+           
         }catch(IOException e) { 
             throw new RuntimeException("Falha na inicialização do stream", e);
         }
@@ -60,6 +66,7 @@ public class Cliente{
             MsgRespostaLogin resposta = (MsgRespostaLogin) ois.readObject();
             if (resposta.getLogin()) { //Se o login foi aprovado
                 System.out.println(resposta.getMensagem());
+                idCliente = resposta.getId();
                 return true;
             }
             else{
@@ -91,30 +98,40 @@ public class Cliente{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (socket.isConnected()) {
+                while (!socket.isClosed()) {
                     //KEEP ALIVE
                     // Tempo atual - Tempo da última mensagem > 15: (Manda Keep Alive caso tenha passado 15 segundos sem mensagem)
-                    if(((System.currentTimeMillis()/1000) - ultimaMensagem)>15.00){
-                        try{
+                    try {
+                        if(((System.currentTimeMillis()/1000) - ultimaMensagem)>15.00){
                             oos.writeObject(new MensagemBase("KEEP_ALIVE"));
                             oos.flush();
                             setUltimaMensagem(System.currentTimeMillis()/1000);
-                        }catch(Exception e){
-                            System.exit(0);
-                        }
-                    }
-                }
+                            }
+                        Thread.sleep(1000); 
+                    } catch (Exception e) {
+                        break;
+                    }   
+                }   
+                System.out.println("KeepAlive: Conexão perdida. Encerrando cliente.");
+                System.exit(0); // Força o encerramento se a conexão cair
             }
         }).start();
     }
 
     public static void main(String args[]){
+        Scanner sc = new Scanner(System.in);
         try{
-            Socket socket = new Socket("127.0.0.1", 9775);
+            
+            System.out.print("Informe o IP do Servidor: ");
+            String IP = sc.nextLine();
+            System.out.print("Informe a porta do Servidor: ");
+            int port = sc.nextInt();
+
+            Socket socket = new Socket(IP, port);
             Cliente cliente = new Cliente(socket);
             if(cliente.login()){
-                cliente.chatCliente = new ChatCliente(cliente.oos, cliente.username); //Responsável pelo gerenciamento do chat via terminal
-                cliente.estadosGlobaisCliente = new HashMap<Integer, PinguimRender>(); //Responsável pela renderização dos penguins
+                cliente.chatCliente = new MensageiroCliente(cliente.oos, cliente.username); //Responsável pelo gerenciamento do chat via terminal
+                cliente.estadosGlobaisCliente = new ConcurrentHashMap<Integer, PinguimRender>(); //Responsável pela renderização dos penguins
                 cliente.gerenciadorDeEstados = new GerenciadorDeEstados(cliente.estadosGlobaisCliente);
 
                 
@@ -122,18 +139,13 @@ public class Cliente{
                 Thread threadLeitor = new Thread(leitorDoCliente);
                 threadLeitor.start(); //Starta Thread da Leitura
                 
-                cliente.keepAlive();
+                Jogo.iniciaJogo(cliente.idCliente, cliente.estadosGlobaisCliente, cliente.chatCliente);
 
-                while(true){
-                    try{
-                        cliente.chatCliente.enviaChat(); // Sempre tenta mandar mensagem
-                    }catch(Exception e){
-                        System.exit(0);
-                    }
-                }
+                cliente.keepAlive();
 
             }
         }catch(IOException e) {
+            System.out.println("Deu pau na main");
             e.printStackTrace();
         }
     }
