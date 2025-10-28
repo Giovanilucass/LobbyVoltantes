@@ -21,22 +21,17 @@ public class LeitorDoCliente implements Runnable{
             try {
                 mensagem = (MensagemBase) ois.readObject(); // Le a mensgem recebida
                 
-                if (mensagem instanceof MsgAtualizacaoEstado) {
-                    final MsgAtualizacaoEstado mensagemAttEstado = (MsgAtualizacaoEstado) mensagem;
+                if (mensagem instanceof MsgAtualizacaoEstado mensagemAttEstado) { //A última palavra recebe o typecast da primeira
                     pipeGerenciadorEstados.addEvento(mensagemAttEstado);
                     // System.out.println("Atualização chegou.");
-                    
                   
                 }
-                else if (mensagem instanceof MsgChat) {
-                    final MsgChat mensagemChat = (MsgChat) mensagem; //Final: transforma variavel em constante (não correr risco do objeto ser alterado)
+                else if (mensagem instanceof MsgChat mensagemChat) {
                     Jogo.adicionarMensagemChatCliente(mensagemChat.getUsername(), mensagemChat.getTexto());
                 }
 
-                else if (mensagem instanceof MsgFluxo) {
-                    final MsgFluxo msgFluxo = (MsgFluxo) mensagem;
+                else if (mensagem instanceof MsgFluxo msgFluxo) {
                     if(msgFluxo.getTipo().equals("SAIDA")){
-                        
                         Jogo.adicionarMensagemChatServidor(msgFluxo.getUsername() + " SAIU DO SERVIDOR");
                     }else if(msgFluxo.getTipo().equals("ENTRADA")){
                         Jogo.adicionarMensagemChatServidor(msgFluxo.getUsername() + " ENTROU NO SERVIDOR");

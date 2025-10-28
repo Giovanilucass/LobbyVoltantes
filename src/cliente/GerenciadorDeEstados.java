@@ -7,8 +7,9 @@ import java.util.concurrent.*;
 public class GerenciadorDeEstados{
 	private Map<Integer, CobraRender> estadosLocal;
     private BlockingQueue<MsgAtualizacaoEstado> filaDeEventos; //FILA CRAZY CRAZY FILA 
+    private int idConta;
     
-    public GerenciadorDeEstados(Map<Integer, CobraRender>estadosLocal) {
+    public GerenciadorDeEstados(Map<Integer, CobraRender>estadosLocal, int idConta) {
         this.estadosLocal = estadosLocal;
         this.filaDeEventos = new LinkedBlockingQueue<MsgAtualizacaoEstado>();
         Thread processador = new Thread(this::processarEventos);
@@ -45,18 +46,18 @@ public class GerenciadorDeEstados{
         
         for (Cobra cobra : estadosAutorizado.values()) { //Para cada cobra na lista REAL de cobras
             int id = cobra.getId(); //Pega o ID da cobra real
+           
             CobraRender cobraLocal = estadosLocal.get(id); // Para cada cobra real, pega a sua render local
-
             if (cobraLocal == null) { //Se não for capaz de achar localmente, cria uma nova renderização de cobra
                 CobraRender novoCobraLocal = new CobraRender(cobra); //Cria um render de Cobra baseado na cobra real
                 estadosLocal.put(id, novoCobraLocal); 
             }
-
             else {//Atualiza posições da render
                 cobraLocal.setDancando(cobra.getDancando());
                 cobraLocal.setXAlvo(cobra.getXAlvo());
                 cobraLocal.setYAlvo(cobra.getYAlvo());
             }
+            
         }
 
         Set<Integer> IDsLocais = new HashSet<Integer>(estadosLocal.keySet()) ;

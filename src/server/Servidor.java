@@ -31,7 +31,7 @@ public class Servidor{
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (serverSocket != null) try {serverSocket.close();} catch(IOException e){e.printStackTrace();}        }
+            if (serverSocket != null) fechaServidor();}
     }
 
     public void fechaServidor() {
@@ -44,12 +44,12 @@ public class Servidor{
     
     public static void main(String args[]) throws IOException{
         Scanner sc = new Scanner(System.in);
-        System.out.print("Informe a porta: ");
+        System.out.print("Informe a porta para iniciar o servidor: ");
         int port = sc.nextInt();
         sc.close();
+
         ServerSocket serverSocketInit = new ServerSocket(port); //Cria Socket em que nosso servidor aceita conexoes nessa Porta
         Servidor servidor = new Servidor(serverSocketInit); //Cria Servidor com seu proprio Socket
         servidor.abreServidor(); //Espera chegar Sockets de clientes  
     }
-    
 }

@@ -52,7 +52,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                             conta = bancoDeContas.get(bancoDeContas.indexOf(j));//Atribui ao Client Handler os valores do jogador
                             this.conta.setOnline(true);
                             this.idConta = bancoDeContas.indexOf(j); //Atribui o seu id ao Index
-                            oos.writeObject(new MsgRespostaLogin("ITS SNAKE TIME...", true, idConta)); //Senha diferente
+                            oos.writeObject(new MsgRespostaLogin("ITS SNAKE TIME!!!", true, idConta)); //Senha diferente
                             oos.flush();
                             return true; //Retorna True se encontrou o usuario e sua senha esta correta
                             //BROADCAST DE USUÁRIO LOGOU
@@ -67,15 +67,12 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 this.idConta = bancoDeContas.size(); //Define o Id do novo jogador com base em quantos jogadores existem
                 bancoDeContas.add(conta);
             }
-            oos.writeObject(new MsgRespostaLogin("CONTA CRIADA! ITS SNAKE TIME...", true, idConta)); //Senha diferente
+            oos.writeObject(new MsgRespostaLogin("CONTA CRIADA! ITS SNAKE TIME!!!", true, idConta)); //Username diferente
             oos.flush();
             return true;
         } catch (Exception e) {
             System.out.println("Problema no login");
             return false;
-
-            // closeGeral(clientSocket, oos, ois);
-            //talvez criar um closeAlternativo mais simples
         }
     }
 
@@ -128,17 +125,17 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
         
     }
 
-    public void broadcast(MensagemBase mensagem) {
+
+
+    public void broadcast(MensagemBase mensagem) { // Explicado em detalhes na seção 2.4.3 do relatório
         List<ClientHandler> remover = new LinkedList<ClientHandler>();
-        
+
         synchronized (clientHandlerList) {
             for (ClientHandler clientHandler : clientHandlerList) { //Para cado jogador enviar:
                 if (!(clientHandler.idConta==this.idConta)) { //Não envia para o mesmo jogador
                 try {
                         // System.out.println(clientHandler.idConta);
-
                         clientHandler.oos.reset();
-
                         clientHandler.oos.writeObject(mensagem);
                         clientHandler.oos.flush();
                 } catch (Exception e) {
@@ -149,6 +146,7 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 }
             }
         }
+        //Remove clientHandlers que cairam por motivos inesperados (melhor explicado na seção 2.4.3 do relatório)
         for (ClientHandler handlerCaido : remover) {
             handlerCaido.closeGeral(handlerCaido.clientSocket, handlerCaido.oos, handlerCaido.ois);
         }
@@ -164,24 +162,24 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                 MensagemBase mensagem = (MensagemBase) ois.readObject(); // Recebe mensagem generica 
                 this.ultimaMensagem = System.currentTimeMillis()/1000;
 
-                if(mensagem instanceof MsgPosicaoAlvo){
-                    MsgPosicaoAlvo msgAlvo = (MsgPosicaoAlvo) mensagem; //Transforma a mensagem recebida no tipo PosicaoAlvo
+                if(mensagem instanceof MsgPosicaoAlvo msgAlvo){
                     synchronized (estadosGlobais){
                         Ponto2D posicaoAlvo = msgAlvo.getAlvo(); //Pega as coordenadas do Alvo(clique) do cliente
                         Cobra cobraAlvo = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
                         if (cobraAlvo == null) {
                             System.err.println("Erro: Cobra do ID " + idConta + " não encontrado no Map Global.");
                         }
-                        cobraAlvo.setXAlvo(posicaoAlvo.getX());
-                        cobraAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
-                        estadosGlobais.put(idConta, cobraAlvo); //Insere a cobra com as novas coordenadas alvo no Map
-                        System.out.println(cobraAlvo.getId() + "-" + conta.getUsername() + " andou para: " + cobraAlvo.getXAlvo() + "x" + cobraAlvo.getYAlvo());
-                        broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia o novo Map com as coordenadas alvo alteradas para que os Clientes movimentem os pinguins ate essas coordenadas
+                        else {
+                            cobraAlvo.setXAlvo(posicaoAlvo.getX());
+                            cobraAlvo.setYAlvo(posicaoAlvo.getY()); //Atualiza as coordenadas de alvo dele
+                            estadosGlobais.put(idConta, cobraAlvo); //Insere a cobra com as novas coordenadas alvo no Map
+                            System.out.println(cobraAlvo.getId() + "-" + conta.getUsername() + " andou para: " + cobraAlvo.getXAlvo() + "x" + cobraAlvo.getYAlvo());
+                            broadcast(new MsgAtualizacaoEstado(estadosGlobais)); //Envia o novo Map com as coordenadas alvo alteradas para que os Clientes movimentem os pinguins ate essas coordenadas
+                        }
                     }
                 }
 
-                else if (mensagem instanceof MsgDanca) {
-                    MsgDanca msgDanca = (MsgDanca) mensagem; //Transforma a mensagem recebida no tipo Danca
+                else if (mensagem instanceof MsgDanca msgDanca) {
                     synchronized(estadosGlobais) {
                         Cobra cobraDanca = estadosGlobais.get(idConta); //Pega do Map com todas as cobras, a cobra que enviou a mensagem
                         cobraDanca.dancar(); //Atualiza o estado de Danca da cobra
@@ -192,16 +190,14 @@ public class ClientHandler implements Runnable{ //Runnable permite ser executado
                     }
                 }
                 
-                else if (mensagem instanceof MsgChat) {
+                else if (mensagem instanceof MsgChat chat) {
                     System.out.println("Recebi mensagem de chat!");
-                    MsgChat chat = (MsgChat) mensagem; //Recebe Mensagem de texto do cliente
                     String texto = chat.getTexto();
                     System.out.println(texto);
                     broadcast(new MsgChat(texto, conta.getUsername()));
                 }
 
-                else if(mensagem instanceof MsgFluxo) {
-                    MsgFluxo msgFluxo = (MsgFluxo) mensagem;
+                else if(mensagem instanceof MsgFluxo msgFluxo) {
                     if(msgFluxo.getTipo().equals("SAIDA")) {
                         System.out.println("msg saida");        
                         closeGeral(clientSocket, oos, ois);

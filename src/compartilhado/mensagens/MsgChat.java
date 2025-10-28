@@ -2,7 +2,7 @@ package compartilhado.mensagens;
 
 public class MsgChat extends MensagemBase{
 
-	private String username; //Id remetente
+	private String username; //Remetente
 	private String texto;
 	
 	public MsgChat(String texto, String username){

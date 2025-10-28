@@ -23,7 +23,7 @@ public class Cliente{
 
     private String username;
 
-    private MensageiroCliente chatCliente; //Responsável por fazer a comunicação do chat
+    private MensageiroCliente mensageiroCliente; //Responsável por fazer a comunicação do chat
 
     private Map<Integer, CobraRender> estadosGlobaisCliente; //Pega os estados das cobras online
 
@@ -82,17 +82,6 @@ public class Cliente{
         }
     }
 
-    // public void closeGeral(Socket socket, ObjectOutputStream oos, ObjectInputStream ois) { //
-    //     try {
-    //         System.out.println("Saindo do servidor...");
-    //         if(oos != null) oos.close();
-    //         if(ois != null) ois.close();
-    //         if(socket != null) socket.close();
-    //     } catch(IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     public void keepAlive() {
         new Thread(new Runnable() {
             @Override
@@ -120,7 +109,6 @@ public class Cliente{
     public static void main(String args[]){
         Scanner sc = new Scanner(System.in);
         try{
-            
             System.out.print("Informe o IP do Servidor: ");
             String IP = sc.nextLine();
             System.out.print("Informe a porta do Servidor: ");
@@ -129,22 +117,21 @@ public class Cliente{
             Socket socket = new Socket(IP, port);
             Cliente cliente = new Cliente(socket);
             if(cliente.login()){
-                cliente.chatCliente = new MensageiroCliente(cliente.oos, cliente.username); //Responsável pelo gerenciamento do chat via terminal
+                cliente.mensageiroCliente = new MensageiroCliente(cliente.oos, cliente.username); //Responsável pelo gerenciamento do chat via terminal
                 cliente.estadosGlobaisCliente = new ConcurrentHashMap<Integer, CobraRender>(); //Responsável pela renderização das cobras
-                cliente.gerenciadorDeEstados = new GerenciadorDeEstados(cliente.estadosGlobaisCliente);
-
+                cliente.gerenciadorDeEstados = new GerenciadorDeEstados(cliente.estadosGlobaisCliente, cliente.idCliente);
                 
-                LeitorDoCliente leitorDoCliente = new LeitorDoCliente(cliente.ois, cliente.gerenciadorDeEstados, cliente.chatCliente);
+                LeitorDoCliente leitorDoCliente = new LeitorDoCliente(cliente.ois, cliente.gerenciadorDeEstados, cliente.mensageiroCliente);
                 Thread threadLeitor = new Thread(leitorDoCliente);
                 threadLeitor.start(); //Starta Thread da Leitura
                 
-                Jogo.iniciaJogo(cliente.idCliente, cliente.estadosGlobaisCliente, cliente.chatCliente);
+                Jogo.iniciaJogo(cliente.idCliente, cliente.estadosGlobaisCliente, cliente.mensageiroCliente);
 
                 cliente.keepAlive();
 
             }
         }catch(IOException e) {
-            System.out.println("Deu pau na main");
+            System.out.println("Problema na main");
             e.printStackTrace();
         }
     }
