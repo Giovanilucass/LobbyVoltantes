@@ -7,8 +7,8 @@ o diretório src está localizado, junto dele deve haver uma pasta bin (para ond
 classes compiladas) e uma pasta dist (onde estão os executáveis .jar) a partir dessa
 pasta, que representa a pasta principal do projeto, o comando
 
-javac -sourcepath src/src/cliente/*.java src/compartilhado/*.java src/compartilhado/mensagens/*.java
-src/server/*.java -d bin/ 
+'javac -sourcepath src/src/cliente/*.java src/compartilhado/*.java src/compartilhado/mensagens/*.java
+src/server/*.java -d bin/'
 
 deve ser executado, ele irá compilar todas as classes necessárias para o funcionamento do código. Essa forma de compilação via terminal
 foi testada apenas no Windows 10, por isso não garantimos que irá funcionar em outro SO, mas basta compilar as classes do diretório principal que deve funcionar.
