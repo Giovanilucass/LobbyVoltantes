@@ -11,6 +11,7 @@ src/server/*.java -d bin/ deve ser executado, ele irá compilar todas as classes
 necessárias para o funcionamento do código. Essa forma de compilação via terminal
 foi testada apenas no Windows 10, por isso não garantimos que irá funcionar em outro
 SO, mas basta compilar as classes do diretório principal que deve funcionar.
+  
   Além disso, como nossa aplicação possuí uma GUI, alguns sprites foram
 criados, eles se localizam na pasta src/sprites/ porém, a compilação via terminal não
 conseguirá visualizar os sprites caso eles não estejam na pasta bin, por isso após a
@@ -25,10 +26,12 @@ você esteja do lado do servidor deverá executar o código java -cp bin/ server
 e então iniciar o servidor normalmente. Caso esteja do lado do cliente você deverá
 executar o código java -cp bin/ cliente.Cliente e então iniciar a conexão com o
 servidor normalmente.
+  
   Caso prefira utilizar o executável basta viajar até a pasta dist/ e dela utilizar o
 comando de terminal java -jar ServidorLobbyVoltantes.jar do lado do servidor, e
 então iniciar o servidor normalmente ou então java -jar ClienteLobbyVoltante.jar do
 lado do cliente e então iniciar a conexão com o servidor normalmente.
+  
   Ambas as formas de execução foram testadas em Windows 10 e 11 com
 diferentes versões do Java, caso utilize outro sistema operacional é recomendado que
 opte pela compilação e execução via terminal que se difere pouco de um SO para
