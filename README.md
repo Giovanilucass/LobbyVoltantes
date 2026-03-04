@@ -5,20 +5,27 @@ Projeto de uma paródia do Club Penguim, para treinar conexões em Rede, usando 
   Para compilar o código manualmente via terminal basta viajar até a pasta onde
 o diretório src está localizado, junto dele deve haver uma pasta bin (para onde irão as
 classes compiladas) e uma pasta dist (onde estão os executáveis .jar) a partir dessa
-pasta, que representa a pasta principal do projeto, o comando javac -sourcepath src/
-src/cliente/*.java src/compartilhado/*.java src/compartilhado/mensagens/*.java
-src/server/*.java -d bin/ deve ser executado, ele irá compilar todas as classes
-necessárias para o funcionamento do código. Essa forma de compilação via terminal
-foi testada apenas no Windows 10, por isso não garantimos que irá funcionar em outro
-SO, mas basta compilar as classes do diretório principal que deve funcionar.
+pasta, que representa a pasta principal do projeto, o comando
+
+javac -sourcepath src/src/cliente/*.java src/compartilhado/*.java src/compartilhado/mensagens/*.java
+src/server/*.java -d bin/ 
+
+deve ser executado, ele irá compilar todas as classes necessárias para o funcionamento do código. Essa forma de compilação via terminal
+foi testada apenas no Windows 10, por isso não garantimos que irá funcionar em outro SO, mas basta compilar as classes do diretório principal que deve funcionar.
   
   Além disso, como nossa aplicação possuí uma GUI, alguns sprites foram
 criados, eles se localizam na pasta src/sprites/ porém, a compilação via terminal não
 conseguirá visualizar os sprites caso eles não estejam na pasta bin, por isso após a
-compilação das classes você poderá executar o comando Copy-Item -Path
-"src\sprites" -Destination "bin" -Recurse no terminal do Windows, ou o comando cp
--r src/sprites bin/ em Linux/macOS. Ao final da execução destes comandos a nossa
-aplicação deve poder ser executada.
+compilação das classes você poderá executar o comando
+
+Copy-Item -Path "src\sprites" -Destination "bin" -Recurse 
+
+no terminal do Windows, ou o comando
+
+cp -r src/sprites bin/ 
+
+em Linux/macOS. 
+Ao final da execução destes comandos a nossa aplicação deve poder ser executada.
 
 ### Como Executar
   Para executar o código compilado via terminal a partir da pasta principal, caso
