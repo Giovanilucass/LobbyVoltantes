@@ -40,25 +40,3 @@ diferentes versões do Java, caso utilize outro sistema operacional é recomenda
 opte pela compilação e execução via terminal que se difere pouco de um SO para
 outro.
 
-### Nomeação
-**Quais recursos precisam ser nomeados?**
-	Basicamente todos os recursos que precisam ser acessados precisam ser nomeados, isto é, o API Gateway (o canal de comunicação entre microserviços), as instâncias dos microserviços (Auth/Login, Mercado, Inventário e Recompensas, bem como suas instâncias), as cópias de bancos de dados (O atual líder e as réplicas), o servidor do Event Bus, os tópicos de mensagem no event bus (para qual microserviço será a mensagem), os usuários, as cartas e as transações.
-
-**Qual esquema de nomeação?**
-	Para o acesso aos microserviços a nomeação será de forma estruturada, isto é, ao enviar a mensagem para o Event Bus ele deverá saber qual microserviço vai ser acessado e qual função será executada naquele microserviço, além de qual instância daquele microserviço será usada. Portanto, teremos algo como: 
-	**\[serviço\].\[funcao\].\[id\]**
-	Já para as cartas e os usuários o esquema será plano, poderemos armazená-los todos da mesma form a e para acessá-los utilizar uma função de hash para encontrar o ID da carta ou usuário específico.
-
-**Dado o esquema qual o mecanismo de resolução de nomes?**
-	Para os serviços os nomes serão resolvidos pelo DNS interno do Docker, traduzindo o nome estruturado mostrado anteriormente para um endereço IP respectivo para o servidor do microserviço.
-	O Event Bus também terá de resolver nomes, já que receberá mensagens estruturadas e também mensagens planas, ele terá que identificar essas mensagens e se comunicar com o serviço correto.
-
-### Processos
-**Faz sentido usar threads?**
-	Sim, afinal, os microserviços terão que se conectar ao Event Bus, para que essa conexão possa ser feita ele terá de estar aguardando sockets em segundo plano, o mesmo acontece para os microserviços, que estarão aguardando as respostas do Event Bus o tempo todo que estiverem conectados e isso terá de ser feito em threads.
-
-**Servidores Stateful ou Stateless?**
-	Stateless, os servidores dos microserviços não guardam nenhum estado, se eles caem eles se comunicam ao Banco de Dados onde as informações estão guardadas e atualizam para o estado atual. Ou seja, todas as informações e estados (Quantas cartas de cada estão em circulação, inventário dos jogadores, usuários inscritos, etc.) estarão armazenadas no banco de dados daquele microserviço.
-
-**Faz sentido usar técnicas de virtualização?**
-	Sim, iremos utilizar docker para ser possível executar todos os banco de dados e instâncias de microserviços, já que teremos alta replicação de cada um destes, o que resultaria em aproximadamente 20 instâncias executando em paralelo.
