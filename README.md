@@ -3,11 +3,11 @@ Projeto de uma paródia do Club Penguim, para treinar conexões em Rede, usando 
 
 Feito por:
 
-Lucas Giovani Santos Ross
+- Lucas Giovani Santos Ross
 
-Tiago Silveira Almeida
+- Tiago Silveira Almeida
 
-Vinícius Chirnev Panhoca
+- Vinícius Chirnev Panhoca
 
 ### Como Compilar
   Para compilar o código manualmente via terminal basta viajar até a pasta onde
