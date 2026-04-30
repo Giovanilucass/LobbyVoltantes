@@ -2,11 +2,8 @@
 Projeto de uma paródia do Club Penguim, para treinar conexões em Rede, usando arquitetura Cliente-Servidor.
 
 Feito por:
-
 - Lucas Giovani Santos Ross
-
 - Tiago Silveira Almeida
-
 - Vinícius Chirnev Panhoca
 
 ### Como Compilar
